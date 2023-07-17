@@ -4,7 +4,16 @@ const app = express()
 const port = 8080
 const priceCalc = require('./price_calc.js')
 
+// Parse json inputs and catch errors and return 400 on bad JSON
 app.use(bodyParser.json())
+app.use((error, req, res, next) => {
+    if (error instanceof SyntaxError) {
+        // Catch bad JSON.
+        res.status(400).json(`{Error: "Invalid input. Requires a list of valid items"}`)
+    } else {
+        next();
+    }
+});
 
 // Return an error when / is called with a GET or a POST
 const errfunc = (req, res) => {
@@ -19,7 +28,7 @@ app.post('/', errfunc)
 app.post('/checkout', (req, res) => {
     'use strict';
     let query = req.body;
-    let result = {"price": 0}
+    let result = { "price": 0 }
     /// Make sure the JSON 
     if (Array.isArray(query)) {
         query.sort() /// Purely an optimization
